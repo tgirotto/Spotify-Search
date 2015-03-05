@@ -24,10 +24,12 @@ INTALLATION
 
 	col 2) Artist(s);
 
-	col 3) Big size album cover;
+	col 3) Album name;
 
-	col 4) Medium size album cover;
+	col 4) Big size album cover;
 
-	col 5) Small size album cover;
+	col 5) Medium size album cover;
 
-	col 6) Track URI.
+	col 6) Small size album cover;
+
+	col 7) Track URI.

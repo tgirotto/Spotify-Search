@@ -81,7 +81,8 @@ function processObjects(objects, callback) {
         console.log(obj.tracks.items[0].uri);
 
         callback(obj.tracks.items[0].name + ',' + 
-                extractArtists(obj.tracks.items[0].artists) + ',' + 
+                extractArtists(obj.tracks.items[0].artists) + ',' +
+                obj.tracks.items[0].album.name + ',' +
                 obj.tracks.items[0].album.images[0].url + ',' +
                 obj.tracks.items[0].album.images[1].url + ',' +
                 obj.tracks.items[0].album.images[1].url + ',' +
