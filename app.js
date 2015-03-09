@@ -38,7 +38,6 @@ function extractObjects(lines) {
 
   for(var i = 0; i < lines.length; i++) {
     var temp = lines[i].split(',');
-    
     objects.push({
       name: convertToQuery(temp[0]),
       artist: convertToQuery(temp[1])
@@ -49,13 +48,17 @@ function extractObjects(lines) {
 };
 
 function convertToQuery(string) {
-  var temp = string.split(' ');
-  var name = '';
+  if(string != undefined) {
+    console.log(string);
+    var temp = string.split(' ');
+    var name = '';
 
-  for(var j = 0; j < temp.length; j++)
-    name += temp[j] + '+';
+    for(var j = 0; j < temp.length; j++)
+      name += temp[j] + '+';
 
-  return name.substr(0, name.length - 1);
+    return name.substr(0, name.length - 1);
+  } else
+    return '';
 };
 
 function createFile(filename, callback) {
@@ -73,20 +76,45 @@ function processObjects(objects, callback) {
       if (!error && response.statusCode == 200) {
         var obj = JSON.parse(body);
 
-        console.log(obj.tracks.items[0].name);
-        console.log(obj.tracks.items[0].artists[0].name);
-        console.log(obj.tracks.items[0].album.images[0].url);
-        console.log(obj.tracks.items[0].album.images[1].url);
-        console.log(obj.tracks.items[0].album.images[2].url);
-        console.log(obj.tracks.items[0].uri);
+        var name = '';
+        var artists = '';
+        var album  = '';
+        var cover_big = '';
+        var cover_medium = '';
+        var cover_small = '';
+        var uri = '';
 
-        callback(obj.tracks.items[0].name + ',' + 
-                extractArtists(obj.tracks.items[0].artists) + ',' +
-                obj.tracks.items[0].album.name + ',' +
-                obj.tracks.items[0].album.images[0].url + ',' +
-                obj.tracks.items[0].album.images[1].url + ',' +
-                obj.tracks.items[0].album.images[1].url + ',' +
-                obj.tracks.items[0].uri + '\n');
+        if(obj.tracks.items.length > 0) {
+          if(obj.tracks.items[0].name != undefined)
+            name = obj.tracks.items[0].name;
+
+          if(obj.tracks.items[0].artists != undefined)
+            artists = extractArtists(obj.tracks.items[0].artists);
+
+          if(obj.tracks.items[0].album.name != undefined)
+            album = obj.tracks.items[0].album.name;
+
+          if(obj.tracks.items[0].album.images[0] != undefined)
+            cover_big = obj.tracks.items[0].album.images[0].url;
+
+          if(obj.tracks.items[0].album.images[1] != undefined)
+            cover_medium = obj.tracks.items[0].album.images[1].url;
+
+          if(obj.tracks.items[0].album.images[2] != undefined)
+            cover_small = obj.tracks.items[0].album.images[2].url;
+
+          if(obj.tracks.items[0].uri != undefined)
+            uri = obj.tracks.items[0].uri;
+
+          callback(name + ',' + 
+                  artists + ',' +
+                  album + ',' +
+                  cover_big + ',' +
+                  cover_medium + ',' +
+                  cover_small + ',' +
+                  uri + '\n');
+        } else
+          callback('#' + JSON.stringify(obj) + ':-------------------------------------->FAIL!!!\n');
       }
     });
   }
