@@ -49,8 +49,8 @@ function extractObjects(lines) {
 
 function convertToQuery(string) {
   if(string != undefined) {
-    console.log(string);
-    var temp = string.split(' ');
+    var punctuationless = removePunctuation(string);
+    var temp = punctuationless.split(' ');
     var name = '';
 
     for(var j = 0; j < temp.length; j++)
@@ -59,6 +59,18 @@ function convertToQuery(string) {
     return name.substr(0, name.length - 1);
   } else
     return '';
+};
+
+function removePunctuation(string) {
+
+  console.log('before: --> ', string);
+  var punctRE = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~]/g;
+  var spaceRE = /\s+/g;
+  var result = string.replace(punctRE, '').replace(spaceRE, ' ');
+
+  console.log('after: --> ', result);
+
+  return result;
 };
 
 function createFile(filename, callback) {
@@ -72,7 +84,7 @@ function createFile(filename, callback) {
 
 function processObjects(objects, callback) {
   for(var i = 0; i < objects.length; i++) {
-    request(URL + objects[i].name + '&artist:' + objects[i].artist, function (error, response, body) {
+    request(URL + objects[i].name , function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var obj = JSON.parse(body);
 
