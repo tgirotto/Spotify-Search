@@ -1,4 +1,4 @@
-var URL = 'https://api.spotify.com/v1/search?limit=1&type=track&q=';
+var URL = 'https://api.spotify.com/v1/search?limit=50&type=track,album,artist,playlist&q=';
 var OUTPUT = 'output.txt';
 
 if (process.argv.length < 3) {
@@ -62,14 +62,9 @@ function convertToQuery(string) {
 };
 
 function removePunctuation(string) {
-
-  console.log('before: --> ', string);
   var punctRE = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~]/g;
   var spaceRE = /\s+/g;
   var result = string.replace(punctRE, '').replace(spaceRE, ' ');
-
-  console.log('after: --> ', result);
-
   return result;
 };
 
@@ -84,6 +79,7 @@ function createFile(filename, callback) {
 
 function processObjects(objects, callback) {
   for(var i = 0; i < objects.length; i++) {
+    console.log(i);
     request(URL + objects[i].name , function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var obj = JSON.parse(body);
