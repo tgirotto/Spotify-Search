@@ -1,3 +1,5 @@
+//example: node app.js test.txt
+
 var URL = 'https://api.spotify.com/v1/search?limit=50&type=track,album,artist,playlist&q=';
 
 if (process.argv.length < 3) {
