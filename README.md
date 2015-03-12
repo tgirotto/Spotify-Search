@@ -18,7 +18,7 @@ INTALLATION
 
 5) Run the code throgh "node app.js [search.txt]" command, where [search.txt] is the input file containing the input.
 
-6) All results will be output to an "output.txt" file, structured as follows:
+6) All results will be output to a [search].out file, structured as follows:
 
 	col 1) Track name;
 
