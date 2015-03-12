@@ -1,5 +1,4 @@
 var URL = 'https://api.spotify.com/v1/search?limit=50&type=track,album,artist,playlist&q=';
-var OUTPUT = 'output.txt';
 
 if (process.argv.length < 3) {
   console.log('Usage: node ' + process.argv[1] + ' FILENAME');
@@ -9,10 +8,14 @@ if (process.argv.length < 3) {
 var fs = require('fs');
 var request = require('request');
 var filename = process.argv[2];
+var OUTPUT = '';
+var LENGTH = 0;
 
 fs.readFile(filename, 'utf8', function(err, data) {
   if (err) 
     throw err;
+
+  OUTPUT = filename.split('.')[0] + '.out';
 
   var lines = extractLines(data);
   var objects = extractObjects(lines);
@@ -20,7 +23,7 @@ fs.readFile(filename, 'utf8', function(err, data) {
   createFile(OUTPUT, function() {
     processObjects(objects, function(line) {
       appendToFile(OUTPUT, line, function(message) {
-        console.log(message);
+        //console.log(message);
       });
     });
   });
@@ -30,10 +33,12 @@ fs.readFile(filename, 'utf8', function(err, data) {
 /************************************************************************************************************/
 
 function extractLines(data) {
+  console.log('Extracting lines...');
   return data.split('\n');
 };
 
 function extractObjects(lines) {
+  console.log('Extracting objects...');
   var objects = [];
 
   for(var i = 0; i < lines.length; i++) {
@@ -78,8 +83,9 @@ function createFile(filename, callback) {
 }; 
 
 function processObjects(objects, callback) {
+  LENGTH = objects.length;
+  console.log('Processing ' + objects.length + ' objects: it might take a while...');
   for(var i = 0; i < objects.length; i++) {
-    console.log(i);
     request(URL + objects[i].name , function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var obj = JSON.parse(body);
@@ -125,6 +131,9 @@ function processObjects(objects, callback) {
           callback('#' + JSON.stringify(obj) + ':-------------------------------------->FAIL!!!\n');
       }
     });
+
+    if(i === objects.length - 1)
+      console.log('Sent all requests to Spotify: printing results...');
   }
 };
 
