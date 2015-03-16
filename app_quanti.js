@@ -1,5 +1,9 @@
 //example: node app.js test.txt
 
+var MAX_CONNECTIONS = 1000;
+var open_connections = 0;
+var current = 0;
+
 var URL = 'https://api.spotify.com/v1/search?limit=50&type=track,album,artist,playlist&q=';
 
 if (process.argv.length < 3) {
@@ -23,7 +27,7 @@ fs.readFile(filename, 'utf8', function(err, data) {
   var objects = extractObjects(lines);
 
   createFile(OUTPUT, function() {
-    processObjects(objects, function(line) {
+    processObjects(objects, 0, function(line) {
       appendToFile(OUTPUT, line, function(message) {
         //console.log(message);
       });
@@ -84,15 +88,28 @@ function createFile(filename, callback) {
   }); 
 }; 
 
-function processObjects(objects, callback) {
+function processObjects(objects, offset, callback) {
+  console.log('open connections: ', open_connections);
   LENGTH = objects.length;
-  console.log('Processing ' + objects.length + ' objects: it might take a while...');
-  for(var i = 0; i < objects.length; i++) {
-    iteration(i, objects[i], callback);
+
+  for(var i = offset; i < objects.length; i++) {
+    if(open_connections < MAX_CONNECTIONS) {
+      open_connections++;
+      iteration(i, objects[i], callback);
+    } else {
+      setTimeout(function() {
+        sleep(objects, i, callback);
+      }, 500);
+      break;
+    }
 
     if(i === objects.length - 1)
-      console.log('Sent all requests to Spotify: printing results...');
+    console.log('Sent all requests to Spotify: printing results...');
   }
+};
+
+function sleep(objects, i, callback) {
+  processObjects(objects, i, callback);
 };
 
 function extractArtists(array) {
@@ -113,18 +130,10 @@ function appendToFile(filename, line, callback) {
   });
 };
 
-function convertToString(input) {
-  var temp = input.split('+');
-  var string = '';
-  for(var i = 0; i < temp.length; i++) {
-    string += temp[i] + ' ';
-  }
-
-  return string.substr(0, string.length - 1);
-};
-
 function iteration(number, input, callback) {
   request(URL + input.name , function (error, response, body) {
+    open_connections--;
+
     if (!error && response.statusCode == 200) {
       var obj = JSON.parse(body);
 
@@ -158,11 +167,10 @@ function iteration(number, input, callback) {
         if(obj.tracks.items[0].uri != undefined)
           uri = obj.tracks.items[0].uri;
 
-        process.stdout.write(".");
-
         callback(
-                convertToString(input.name) + ',' +
-                convertToString(input.artist) + ',' +
+                number + ',' +
+                input.name + ',' +
+                input.artist + ',' +
                 name + ',' + 
                 artists + ',' +
                 album + ',' +
@@ -171,7 +179,7 @@ function iteration(number, input, callback) {
                 cover_small + ',' +
                 uri + '\n');
       } else
-        callback('#' + JSON.stringify(obj) + ':-------------------------------------->FAIL!!!\n');
+        callback(number + ', #' + JSON.stringify(obj) + ':-------------------------------------->FAIL!!!\n');
     }
   });
 };
