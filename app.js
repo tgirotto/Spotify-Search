@@ -135,6 +135,7 @@ function iteration(number, input, callback) {
       var cover_medium = '';
       var cover_small = '';
       var uri = '';
+      var popularity = '';
 
       if(obj.tracks.items.length > 0) {
         if(obj.tracks.items[0].name != undefined)
@@ -158,6 +159,9 @@ function iteration(number, input, callback) {
         if(obj.tracks.items[0].uri != undefined)
           uri = obj.tracks.items[0].uri;
 
+        if(obj.tracks.items[0].popularity != undefined)
+          popularity = obj.tracks.items[0].popularity;
+
         process.stdout.write(".");
 
         callback(
@@ -169,7 +173,8 @@ function iteration(number, input, callback) {
                 cover_big + ',' +
                 cover_medium + ',' +
                 cover_small + ',' +
-                uri + '\n');
+                uri + ',' + 
+                popularity + '\n');
       } else
         callback('#' + JSON.stringify(obj) + ':-------------------------------------->FAIL!!!\n');
     }

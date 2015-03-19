@@ -18,4 +18,5 @@ INTALLATION
   - Big size album cover;
   - Medium size album cover;
   - Small size album cover;
-  - Track URI.
+  - Track URI;
+  - Popularity;
